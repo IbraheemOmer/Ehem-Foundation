@@ -31,7 +31,7 @@ class MyApp extends StatelessWidget {
           theme: theme,
           title: 'ehem_foundation',
           debugShowCheckedModeBanner: false,
-          initialRoute: AppRoutes.loginScreen,
+          initialRoute: AppRoutes.signUpScreen,
           routes: AppRoutes.routes,
         );
       },

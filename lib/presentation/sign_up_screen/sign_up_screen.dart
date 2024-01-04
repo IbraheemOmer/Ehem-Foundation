@@ -49,6 +49,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
           'country': countryController.text,
           'divorcedValue': divorcedvalueController.text,
         });
+
+        Navigator.push(context, MaterialPageRoute(builder: (context) => HomeContainerScreen()));
       }
     } catch (e) {
       print(e);
@@ -73,6 +75,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       SizedBox(height: 38.v),
                       Expanded(
                           child: SingleChildScrollView(
+
                               child: Padding(
                                   padding: EdgeInsets.only(
                                       left: 16.h, right: 16.h, bottom: 32.v),
@@ -95,30 +98,48 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                     SizedBox(height: 14.v),
                                     _buildMaritalStatusSection(context),
                                     SizedBox(height: 32.v),
+                                    _isLoading ? CircularProgressIndicator():
                                     CustomElevatedButton(
                                         text: "Sign Up",
                                         buttonStyle:
                                             CustomButtonStyles.fillPrimary,
                                         onPressed: () {
                                           _signUp(context);
-                                          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomeContainerScreen()));
                                         }),
                                     SizedBox(height: 27.v),
-                                    Container(
-                                      child: RichText(
-                                          text: TextSpan(children: [
-                                            TextSpan(
-                                                text: "Do you have account?",
-                                                style: theme
-                                                    .textTheme.bodyMedium),
-                                            TextSpan(text: " "),
-                                            TextSpan(
-                                                text: "Login",
-                                                style: CustomTextStyles
-                                                    .titleMediumPrimary)
-                                          ]),
-                                          textAlign: TextAlign.left),
-                                    )
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Container(
+                                          child: RichText(
+                                              text: TextSpan(children: [
+                                                TextSpan(
+                                                    text: "Do you have account?",
+                                                    style: theme
+                                                        .textTheme.bodyMedium),
+                                                TextSpan(text: " "),
+                                              ]),
+                                              textAlign: TextAlign.left),
+                                        ),
+                                        GestureDetector(
+                                          onTap: () {
+                                            onTapTxtDoyouhaveaccount(context);
+                                          },
+                                          child: Container(
+                                            child: RichText(
+                                                text: TextSpan(children: [
+                                                  TextSpan(
+                                                      text: "Login",
+                                                      style: CustomTextStyles
+                                                          .titleMediumPrimary)
+                                                ]),
+                                                textAlign: TextAlign.left),
+                                          ),
+                                        )
+                                      ],
+                                    ),
+
                                   ]))))
                     ])))));
   }
