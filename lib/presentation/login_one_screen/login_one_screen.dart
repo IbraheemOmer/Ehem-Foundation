@@ -3,18 +3,64 @@ import 'package:ehem_foundation_project/widgets/app_bar/appbar_title.dart';
 import 'package:ehem_foundation_project/widgets/app_bar/custom_app_bar.dart';
 import 'package:ehem_foundation_project/widgets/custom_elevated_button.dart';
 import 'package:ehem_foundation_project/widgets/custom_text_form_field.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+import '../home_container_screen/home_container_screen.dart';
+
 // ignore_for_file: must_be_immutable
-class LoginOneScreen extends StatelessWidget {
+class LoginOneScreen extends StatefulWidget {
   LoginOneScreen({Key? key}) : super(key: key);
 
+  @override
+  State<LoginOneScreen> createState() => _LoginOneScreenState();
+}
+
+class _LoginOneScreenState extends State<LoginOneScreen> {
   TextEditingController emailController = TextEditingController();
 
   TextEditingController passwordController = TextEditingController();
 
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  bool _isLoading = false;
+
+  String _error = "";
+
+  Future <void> _login(BuildContext context) async {
+    setState(() {
+      _error = "";
+    });
+
+    if(_formKey.currentState?.validate() ?? false){
+      try {
+        setState(() {
+          _isLoading = true;
+        });
+        UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+          email: emailController.text.trim(),
+          password: passwordController.text.trim(),
+        );
+
+        await _auth.sendPasswordResetEmail(email: emailController.text.trim());
+
+        Navigator.push(context, MaterialPageRoute(builder: (context) => HomeContainerScreen()));
+      } catch (e) {
+        setState(() {
+          _error ="Error during login $e";
+        });
+        print("Error during login $e");
+      }
+      finally{
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -57,24 +103,37 @@ class LoginOneScreen extends StatelessWidget {
                           text: "login",
                           buttonStyle: CustomButtonStyles.fillPrimary,
                           onPressed: () {
-                            onTapLogin(context);
+                            _login(context);
                           }),
                       SizedBox(height: 27.v),
-                      GestureDetector(
-                          onTap: () {
-                            onTapTxtDonthaveaccount(context);
-                          },
-                          child: RichText(
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          RichText(
                               text: TextSpan(children: [
                                 TextSpan(
                                     text: "Don't have account?",
                                     style: theme.textTheme.bodyMedium),
                                 TextSpan(text: " "),
-                                TextSpan(
-                                    text: "Register",
-                                    style: CustomTextStyles.titleMediumPrimary)
                               ]),
-                              textAlign: TextAlign.left)),
+                              textAlign: TextAlign.left),
+                          GestureDetector(
+                            onTap: () {
+                              onTapTxtDonthaveaccount(context);
+                            },
+                            child: Container(
+                              child: RichText(
+                                  text: TextSpan(children: [
+                                    TextSpan(
+                                        text: "Register",
+                                        style: CustomTextStyles
+                                            .titleMediumPrimary)
+                                  ]),
+                                  textAlign: TextAlign.left),
+                            ),
+                          )
+                        ],
+                      ),
                       SizedBox(height: 5.v)
                     ])))));
   }
