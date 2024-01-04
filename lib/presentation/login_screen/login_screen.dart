@@ -3,17 +3,62 @@ import 'package:ehem_foundation_project/widgets/app_bar/appbar_title.dart';
 import 'package:ehem_foundation_project/widgets/app_bar/custom_app_bar.dart';
 import 'package:ehem_foundation_project/widgets/custom_elevated_button.dart';
 import 'package:ehem_foundation_project/widgets/custom_text_form_field.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 // ignore_for_file: must_be_immutable
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   LoginScreen({Key? key}) : super(key: key);
 
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
   TextEditingController emailController = TextEditingController();
 
   TextEditingController passwordController = TextEditingController();
 
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  bool _isLoading = false;
+
+  String _error = "";
+
+  Future <void> _login(BuildContext context) async {
+    setState(() {
+      _error = "";
+    });
+
+    if(_formKey.currentState?.validate() ?? false){
+      try {
+        setState(() {
+          _isLoading = true;
+        });
+        UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+          email: emailController.text.trim(),
+          password: passwordController.text.trim(),
+        );
+
+        await _auth.sendPasswordResetEmail(email: emailController.text.trim());
+
+        print("User:  ${userCredential.user?.email}");
+
+      } catch (e) {
+        setState(() {
+          _error ="Error during login $e";
+        });
+        print("Error during login $e");
+      }
+      finally{
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,11 +97,12 @@ class LoginScreen extends StatelessWidget {
                                               decoration:
                                                   TextDecoration.underline))))),
                       SizedBox(height: 20.v),
+                      _isLoading ? CircularProgressIndicator() :
                       CustomElevatedButton(
                           text: "login",
                           buttonStyle: CustomButtonStyles.fillOnError,
                           onPressed: () {
-                            onTapLogin(context);
+                            _login;
                           }),
                       SizedBox(height: 27.v),
                       RichText(

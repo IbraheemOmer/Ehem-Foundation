@@ -1,12 +1,22 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ehem_foundation_project/core/app_export.dart';
 import 'package:ehem_foundation_project/widgets/custom_elevated_button.dart';
 import 'package:ehem_foundation_project/widgets/custom_text_form_field.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
-// ignore_for_file: must_be_immutable
-class SignUpScreen extends StatelessWidget {
+import '../home_container_screen/home_container_screen.dart';
+
+class SignUpScreen extends StatefulWidget {
   SignUpScreen({Key? key}) : super(key: key);
 
+  @override
+  State<SignUpScreen> createState() => _SignUpScreenState();
+}
+
+class _SignUpScreenState extends State<SignUpScreen> {
   TextEditingController emailController = TextEditingController();
 
   TextEditingController passwordController = TextEditingController();
@@ -14,6 +24,39 @@ class SignUpScreen extends StatelessWidget {
   TextEditingController countryController = TextEditingController();
 
   TextEditingController divorcedvalueController = TextEditingController();
+
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  bool _isLoading = false;
+
+  Future <void> _signUp(BuildContext context) async {
+    try {
+      setState(() {
+        _isLoading = true;
+      });
+      final UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
+        email: emailController.text.trim(),
+        password: passwordController.text.trim(),
+      );
+      final User? user = userCredential.user;
+      print(user);
+      if (user != null) {
+        await _firestore.collection('users').doc(user.uid).set({
+          'email': emailController.text,
+          'password': passwordController.text,
+          'country': countryController.text,
+          'divorcedValue': divorcedvalueController.text,
+        });
+      }
+    } catch (e) {
+      print(e);
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
 
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
@@ -37,9 +80,8 @@ class SignUpScreen extends StatelessWidget {
                                     Text("Let’s Get Started",
                                         style: theme.textTheme.titleLarge),
                                     SizedBox(height: 13.v),
-                                    CustomImageView(
-                                        imagePath:
-                                            ImageConstant.imgWebsiteSetupRafiki,
+                                    SvgPicture.asset(
+                                        ImageConstant.imgWebsiteSetupRafiki,
                                         height: 85.v,
                                         width: 128.h),
                                     SizedBox(height: 35.v),
@@ -58,26 +100,25 @@ class SignUpScreen extends StatelessWidget {
                                         buttonStyle:
                                             CustomButtonStyles.fillPrimary,
                                         onPressed: () {
-                                          onTapSignUp(context);
+                                          _signUp(context);
+                                          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomeContainerScreen()));
                                         }),
                                     SizedBox(height: 27.v),
-                                    GestureDetector(
-                                        onTap: () {
-                                          onTapTxtDoyouhaveaccount(context);
-                                        },
-                                        child: RichText(
-                                            text: TextSpan(children: [
-                                              TextSpan(
-                                                  text: "Do you have account?",
-                                                  style: theme
-                                                      .textTheme.bodyMedium),
-                                              TextSpan(text: " "),
-                                              TextSpan(
-                                                  text: "Login",
-                                                  style: CustomTextStyles
-                                                      .titleMediumPrimary)
-                                            ]),
-                                            textAlign: TextAlign.left))
+                                    Container(
+                                      child: RichText(
+                                          text: TextSpan(children: [
+                                            TextSpan(
+                                                text: "Do you have account?",
+                                                style: theme
+                                                    .textTheme.bodyMedium),
+                                            TextSpan(text: " "),
+                                            TextSpan(
+                                                text: "Login",
+                                                style: CustomTextStyles
+                                                    .titleMediumPrimary)
+                                          ]),
+                                          textAlign: TextAlign.left),
+                                    )
                                   ]))))
                     ])))));
   }
@@ -89,7 +130,6 @@ class SignUpScreen extends StatelessWidget {
       SizedBox(height: 10.v),
       CustomTextFormField(
           controller: emailController,
-          hintText: "Example@gmial.com",
           textInputType: TextInputType.emailAddress)
     ]);
   }
@@ -127,7 +167,7 @@ class SignUpScreen extends StatelessWidget {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Text("Country", style: theme.textTheme.titleLarge),
       SizedBox(height: 11.v),
-      CustomTextFormField(controller: countryController, hintText: "Pakistan")
+      CustomTextFormField(controller: countryController)
     ]);
   }
 
@@ -138,7 +178,6 @@ class SignUpScreen extends StatelessWidget {
       SizedBox(height: 13.v),
       CustomTextFormField(
           controller: divorcedvalueController,
-          hintText: "Divorced",
           textInputAction: TextInputAction.done)
     ]);
   }
