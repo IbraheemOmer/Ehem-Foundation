@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "736105015925",
+    "project_id": "ehem-foundation-4c280",
+    "storage_bucket": "ehem-foundation-4c280.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:736105015925:android:079402767feae312e3263c",
+        "android_client_info": {
+          "package_name": "com.example.ehem_foundation_project"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAxOf-cJePUJ1svoWpCaTpYeUxDYZeXN2M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
