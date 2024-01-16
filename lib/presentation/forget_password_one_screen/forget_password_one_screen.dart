@@ -1,22 +1,32 @@
 import 'package:ehem_foundation_project/core/app_export.dart';
 import 'package:ehem_foundation_project/widgets/custom_elevated_button.dart';
 import 'package:ehem_foundation_project/widgets/custom_text_form_field.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-// ignore_for_file: must_be_immutable
-class ForgetPasswordOneScreen extends StatelessWidget {
+class ForgetPasswordOneScreen extends StatefulWidget {
   ForgetPasswordOneScreen({Key? key}) : super(key: key);
 
+  @override
+  State<ForgetPasswordOneScreen> createState() => _ForgetPasswordOneScreenState();
+}
+
+class _ForgetPasswordOneScreenState extends State<ForgetPasswordOneScreen> {
   TextEditingController emailController = TextEditingController();
 
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  Future<void> _sendResetLink(BuildContext context) async {
+        await _auth.sendPasswordResetEmail(email: emailController.text.trim());
+  }
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-
         body: ListView(
           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           children: [
@@ -56,7 +66,7 @@ class ForgetPasswordOneScreen extends StatelessWidget {
                     text: "Send Link",
                     buttonStyle: CustomButtonStyles.fillPrimary,
                     onPressed: () {
-                      onTapSendLink(context);
+                      _sendResetLink(context);
                     },
                   ),
                   SizedBox(height: 5.v),
@@ -69,22 +79,18 @@ class ForgetPasswordOneScreen extends StatelessWidget {
     );
   }
 
-  /// Section Widget
   Widget _buildEmailSection(BuildContext context) {
     return Padding(
-        padding: EdgeInsets.only(left: 2.h),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text("Email", style: theme.textTheme.titleMedium),
-          SizedBox(height: 10.v),
-          CustomTextFormField(
-              controller: emailController,
-              textInputAction: TextInputAction.done,
-              textInputType: TextInputType.emailAddress)
-        ]));
-  }
-
-  /// Navigates to the forgetPasswordtwoOneScreen when the action is triggered.
-  onTapSendLink(BuildContext context) {
-    Navigator.pushNamed(context, AppRoutes.forgetPasswordtwoOneScreen);
+      padding: EdgeInsets.only(left: 2.h),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text("Email", style: theme.textTheme.titleMedium),
+        SizedBox(height: 10.v),
+        CustomTextFormField(
+          controller: emailController,
+          textInputAction: TextInputAction.done,
+          textInputType: TextInputType.emailAddress,
+        ),
+      ]),
+    );
   }
 }

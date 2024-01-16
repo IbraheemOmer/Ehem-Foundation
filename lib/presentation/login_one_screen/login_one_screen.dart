@@ -47,8 +47,6 @@ class _LoginOneScreenState extends State<LoginOneScreen> {
           password: passwordController.text.trim(),
         );
 
-        await _auth.sendPasswordResetEmail(email: emailController.text.trim());
-
         Navigator.push(context, MaterialPageRoute(builder: (context) => HomeContainerScreen()));
       } catch (e) {
         setState(() {
@@ -86,97 +84,80 @@ class _LoginOneScreenState extends State<LoginOneScreen> {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: Scaffold(
-        appBar: _buildAppBar(context),
-        body: ListView(
-          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-          children: [
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 16.h, vertical: 7.v),
-              child: Column(
-                children: [
-                  SvgPicture.asset(
-                    ImageConstant.imgFrame,
-                    height: 216.v,
-                    width: 266.h,
-                  ),
-                  SizedBox(height: 35.v),
-                  _buildEmailColumn(context),
-                  SizedBox(height: 14.v),
-                  _buildPasswordColumn(context),
-                  SizedBox(height: 15.v),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: GestureDetector(
-                      onTap: () {
-                        onTapTxtForgetPassword(context);
-                      },
-                      child: Padding(
-                        padding: EdgeInsets.only(right: 16.h),
-                        child: Text(
-                          "Forget Password?",
-                          style: CustomTextStyles.bodyMediumOnPrimary.copyWith(
-                            decoration: TextDecoration.underline,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 20.v),
-                  CustomElevatedButton(
-                    text: "login",
-                    buttonStyle: CustomButtonStyles.fillPrimary,
-                    onPressed: () {
-                      _login(context);
-                    },
-                  ),
-                  SizedBox(height: 27.v),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      RichText(
-                        text: TextSpan(
+        child: Scaffold(
+            resizeToAvoidBottomInset: false,
+            appBar: _buildAppBar(context),
+            body: SingleChildScrollView(
+              child: Form(
+                  key: _formKey,
+                  child: Container(
+                      width: double.maxFinite,
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 16.h, vertical: 7.v),
+                      child: Column(children: [
+                        SvgPicture.asset(
+                            ImageConstant.imgFrame,
+                            height: 216.v,
+                            width: 266.h),
+                        SizedBox(height: 35.v),
+                        _buildEmailColumn(context),
+                        SizedBox(height: 14.v),
+                        _buildPasswordColumn(context),
+                        SizedBox(height: 15.v),
+                        Align(
+                            alignment: Alignment.centerRight,
+                            child: GestureDetector(
+                                onTap: () {
+                                  onTapTxtForgetPassword(context);
+                                },
+                                child: Padding(
+                                    padding: EdgeInsets.only(right: 16.h),
+                                    child: Text("Forget Password?",
+                                        style: CustomTextStyles
+                                            .bodyMediumOnPrimary
+                                            .copyWith(
+                                                decoration:
+                                                    TextDecoration.underline))))),
+                        SizedBox(height: 20.v),
+                        CustomElevatedButton(
+                            text: "login",
+                            buttonStyle: CustomButtonStyles.fillPrimary,
+                            onPressed: () {
+                              _login(context);
+                            }),
+                        SizedBox(height: 27.v),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            TextSpan(
-                              text: "Don't have an account?",
-                              style: theme.textTheme.bodyMedium,
-                            ),
-                            TextSpan(text: " "),
+                            RichText(
+                                text: TextSpan(children: [
+                                  TextSpan(
+                                      text: "Don't have account?",
+                                      style: theme.textTheme.bodyMedium),
+                                  TextSpan(text: " "),
+                                ]),
+                                textAlign: TextAlign.left),
+                            GestureDetector(
+                              onTap: () {
+                                onTapTxtDonthaveaccount(context);
+                              },
+                              child: Container(
+                                child: RichText(
+                                    text: TextSpan(children: [
+                                      TextSpan(
+                                          text: "Register",
+                                          style: CustomTextStyles
+                                              .titleMediumPrimary)
+                                    ]),
+                                    textAlign: TextAlign.left),
+                              ),
+                            )
                           ],
                         ),
-                        textAlign: TextAlign.left,
-                      ),
-                      GestureDetector(
-                        onTap: () {
-                          onTapTxtDonthaveaccount(context);
-                        },
-                        child: Container(
-                          child: RichText(
-                            text: TextSpan(
-                              children: [
-                                TextSpan(
-                                  text: "Register",
-                                  style:
-                                  CustomTextStyles.titleMediumPrimary,
-                                ),
-                              ],
-                            ),
-                            textAlign: TextAlign.left,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 5.v),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+                        SizedBox(height: 5.v)
+                      ]))),
+            )));
   }
-
 
   /// Section Widget
   PreferredSizeWidget _buildAppBar(BuildContext context) {
