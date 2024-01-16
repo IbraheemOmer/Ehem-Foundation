@@ -188,7 +188,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   Widget _buildDateOfBirthSection(BuildContext context) {
     String formattedDate = _selectedDate != null
         ? DateFormat('dd/MM/yyyy').format(_selectedDate!)
-        : 'Select Date';
+        : '';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
