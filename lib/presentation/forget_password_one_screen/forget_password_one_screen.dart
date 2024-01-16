@@ -116,6 +116,7 @@ class _ForgetPasswordOneScreenState extends State<ForgetPasswordOneScreen> {
           controller: emailController,
           textInputAction: TextInputAction.done,
           textInputType: TextInputType.emailAddress,
+          autofocus: false,
         ),
       ]),
     );
