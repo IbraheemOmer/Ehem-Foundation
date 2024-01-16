@@ -6,6 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:intl/intl.dart';
 
 import '../home_container_screen/home_container_screen.dart';
 
@@ -25,11 +26,26 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   TextEditingController divorcedvalueController = TextEditingController();
 
+  DateTime? _selectedDate;
+
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   bool _isLoading = false;
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(), // Set initial date to today
+      firstDate: DateTime(1900), // Minimum selectable date
+      lastDate: DateTime(2100), // Maximum selectable date
+    );
+    if (picked != null) {
+      setState(() {
+        _selectedDate = picked; // Update a variable to store the selected date
+      });
+    }
+  }
 
   Future <void> _signUp(BuildContext context) async {
     try {
@@ -48,6 +64,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
           'password': passwordController.text,
           'country': countryController.text,
           'divorcedValue': divorcedvalueController.text,
+          'dateOfBirth': _selectedDate?.toIso8601String(),
         });
 
         Navigator.push(context, MaterialPageRoute(builder: (context) => HomeContainerScreen()));
@@ -162,7 +179,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
       SizedBox(height: 13.v),
       CustomTextFormField(
           controller: passwordController,
-          hintText: "*************",
           textInputType: TextInputType.visiblePassword,
           obscureText: true)
     ]);
@@ -170,18 +186,36 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   /// Section Widget
   Widget _buildDateOfBirthSection(BuildContext context) {
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Text("Date of birth", style: theme.textTheme.titleLarge),
-      SizedBox(height: 13.v),
-      Container(
-          padding: EdgeInsets.symmetric(horizontal: 8.h, vertical: 9.v),
-          decoration: AppDecoration.fillOnErrorContainer
-              .copyWith(borderRadius: BorderRadiusStyle.roundedBorder8),
-          child: Row(children: [
-            Text("23/05/1995", style: theme.textTheme.bodyMedium)
-          ]))
-    ]);
+    String formattedDate = _selectedDate != null
+        ? DateFormat('dd/MM/yyyy').format(_selectedDate!)
+        : 'Select Date';
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text("Date of birth", style: theme.textTheme.titleLarge),
+        SizedBox(height: 13.v),
+        InkWell(
+          onTap: () => _selectDate(context),
+          child: Container(
+            decoration: AppDecoration.fillOnErrorContainer
+                .copyWith(borderRadius: BorderRadiusStyle.roundedBorder8),
+            child: Row(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    formattedDate,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
   }
+
 
   /// Section Widget
   Widget _buildCountrySection(BuildContext context) {
