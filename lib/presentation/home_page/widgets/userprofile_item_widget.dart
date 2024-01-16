@@ -1,9 +1,18 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ehem_foundation_project/core/app_export.dart';
 import 'package:flutter/material.dart';
 
+// this is the file to work in
 // ignore: must_be_immutable
 class UserprofileItemWidget extends StatelessWidget {
+  final String text;
+  final Timestamp timestamp;
+  final int likes;
+
   UserprofileItemWidget({
+    required this.text,
+    required this.timestamp,
+    required this.likes,
     Key? key,
     this.onTapUserProfile,
   }) : super(
@@ -11,6 +20,23 @@ class UserprofileItemWidget extends StatelessWidget {
         );
 
   VoidCallback? onTapUserProfile;
+
+  String calculateTimeDifference(Timestamp timestamp) {
+    DateTime now = DateTime.now();
+    DateTime dateTime = timestamp.toDate();
+    Duration difference = now.difference(dateTime);
+
+    if (difference.inDays >= 1) {
+      if (difference.inDays >= 7) {
+        int weeks = difference.inDays ~/ 7;
+        return '$weeks ${weeks == 1 ? 'w' : 'w'}';
+      } else {
+        return '${difference.inDays} ${difference.inDays == 1 ? 'd' : 'd'}';
+      }
+    } else {
+      return '${difference.inHours} ${difference.inHours == 1 ? 'h' : 'h'}';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +85,7 @@ class UserprofileItemWidget extends StatelessWidget {
                           Opacity(
                             opacity: 0.7,
                             child: Text(
-                              "1h",
+                              calculateTimeDifference(timestamp),
                               style: CustomTextStyles.bodySmallOnPrimary8,
                             ),
                           ),
@@ -81,7 +107,7 @@ class UserprofileItemWidget extends StatelessWidget {
               width: 321.h,
               margin: EdgeInsets.only(right: 6.h),
               child: Text(
-                "sit amet dui auctor dictum eget a elit. Pellentesque varius diam risus, ut condimentum lorem volutpat vel. Nam vel orci pharetra eros pulvinar cursus nec quis tellus. sit amet dui auctor dictum egelus. ",
+                text,
                 maxLines: 4,
                 overflow: TextOverflow.ellipsis,
                 style: theme.textTheme.bodyMedium,
