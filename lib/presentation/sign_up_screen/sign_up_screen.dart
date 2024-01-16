@@ -47,27 +47,32 @@ class _SignUpScreenState extends State<SignUpScreen> {
     }
   }
 
-  Future <void> _signUp(BuildContext context) async {
+  Future<void> _signUp(BuildContext context) async {
     try {
-      setState(() {
-        _isLoading = true;
-      });
-      final UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
-        email: emailController.text.trim(),
-        password: passwordController.text.trim(),
-      );
-      final User? user = userCredential.user;
-      print(user);
-      if (user != null) {
-        await _firestore.collection('users').doc(user.uid).set({
-          'email': emailController.text,
-          'password': passwordController.text,
-          'country': countryController.text,
-          'divorcedValue': divorcedvalueController.text,
-          'dateOfBirth': _selectedDate?.toIso8601String(),
+      // Validate the form
+      if (_formKey.currentState!.validate()) {
+        setState(() {
+          _isLoading = true;
         });
 
-        Navigator.push(context, MaterialPageRoute(builder: (context) => HomeContainerScreen()));
+        final UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
+          email: emailController.text.trim(),
+          password: passwordController.text.trim(),
+        );
+
+        final User? user = userCredential.user;
+
+        if (user != null) {
+          await _firestore.collection('users').doc(user.uid).set({
+            'email': emailController.text,
+            'password': passwordController.text,
+            'country': countryController.text,
+            'divorcedValue': divorcedvalueController.text,
+            'dateOfBirth': _selectedDate?.toIso8601String(),
+          });
+
+          Navigator.push(context, MaterialPageRoute(builder: (context) => HomeContainerScreen()));
+        }
       }
     } catch (e) {
       print(e);
@@ -76,6 +81,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       });
     }
   }
+
 
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
@@ -167,8 +173,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
       Text("Email", style: theme.textTheme.titleMedium),
       SizedBox(height: 10.v),
       CustomTextFormField(
-          controller: emailController,
-          textInputType: TextInputType.emailAddress)
+        controller: emailController,
+        textInputType: TextInputType.emailAddress,
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return 'Please enter your email';
+          }
+          return null;
+        },
+      ),
     ]);
   }
 
@@ -178,11 +191,19 @@ class _SignUpScreenState extends State<SignUpScreen> {
       Text("Password", style: theme.textTheme.titleLarge),
       SizedBox(height: 13.v),
       CustomTextFormField(
-          controller: passwordController,
-          textInputType: TextInputType.visiblePassword,
-          obscureText: true)
+        controller: passwordController,
+        textInputType: TextInputType.visiblePassword,
+        obscureText: true,
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return 'Please enter your password';
+          }
+          return null;
+        },
+      ),
     ]);
   }
+
 
   /// Section Widget
   Widget _buildDateOfBirthSection(BuildContext context) {
