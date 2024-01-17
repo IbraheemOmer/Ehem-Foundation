@@ -55,8 +55,6 @@ class _ProfilePageState extends State<ProfilePage> {
 
   bool _isLoading = false;
 
-  DatabaseReference _databaseReference = FirebaseDatabase.instance.ref().child("Users");
-
   @override
   void initState() {
     super.initState();
@@ -80,6 +78,7 @@ class _ProfilePageState extends State<ProfilePage> {
             dateController.text = userData['date'] ?? '';
             countryController.text = userData['country'] ?? '';
             iconamooneditthinController.text = userData['divorcedValue'] ?? '';
+            _image = File(userData['imageUrl'] ?? '');
             // Set other fields accordingly
           });
         }
@@ -105,25 +104,91 @@ class _ProfilePageState extends State<ProfilePage> {
       User? user = _auth.currentUser;
       if (user != null) {
         await user.updateDisplayName(nameController.text);
-        // await user.updateEmail(emailController.text);
         await user.updatePassword(passwordController.text);
 
-        // Save changes to Firestore
         await userCollection.doc(user.uid).set({
           'name': nameController.text,
-          // 'email': emailController.text,
           'password': passwordController.text,
           'date': dateController.text,
           'country': countryController.text,
           'divorcedValue': iconamooneditthinController.text,
           // Set other fields accordingly
         }, SetOptions(merge: true));
+
+        // Upload profile image to Firebase Storage
+        if (_image != null) {
+          // Upload profile image to Firebase Storage
+          String imageFileName = 'profile_${user.uid}.jpg';
+          Reference ref = FirebaseStorage.instance.ref().child('profile_images/$imageFileName');
+          await ref.putFile(_image!);
+
+          UploadTask uploadTask = ref.putFile(_image!);
+
+          await uploadTask.whenComplete(() async{
+            String imageUrl = await ref.getDownloadURL();
+            await userCollection.doc(user.uid).set({
+              'imageUrl': imageUrl,
+              // Set other fields accordingly
+            }, SetOptions(merge: true));
+          });
+          // Save changes to Firestore with the image URL
+        }
       }
     } catch (e) {
       setState(() {
         _errorText = 'Error updating profile: $e';
       });
       return;
+    }
+  }
+
+  void _showImagePickerBottomSheet() {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: Icon(Icons.camera),
+              title: Text('Take a photo'),
+              onTap: () {
+                Navigator.pop(context);
+                _getImageFromCamera();
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.image),
+              title: Text('Choose from gallery'),
+              onTap: () {
+                Navigator.pop(context);
+                _getImageFromGallery();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _getImageFromCamera() async {
+    final pickedFile = await _imagePicker.pickImage(source: ImageSource.camera);
+
+    if (pickedFile != null) {
+      setState(() {
+        _image = File(pickedFile.path);
+      });
+    }
+  }
+
+  Future<void> _getImageFromGallery() async {
+    final pickedFile =
+    await _imagePicker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      setState(() {
+        _image = File(pickedFile.path);
+      });
     }
   }
 
@@ -176,7 +241,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               alignment: Alignment.bottomRight,
                               children: [
                                 CustomImageView(
-                                  imagePath: ImageConstant.imgEllipse3,
+                                  imagePath: _image != null ? _image!.path : ImageConstant.imgEllipse3,
                                   height: 176.adaptSize,
                                   width: 176.adaptSize,
                                   radius: BorderRadius.circular(
@@ -185,6 +250,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                   alignment: Alignment.center,
                                 ),
                                 CustomImageView(
+                                  onTap: _showImagePickerBottomSheet,
                                   imagePath: ImageConstant.imgSolarCameraMi,
                                   height: 32.adaptSize,
                                   width: 32.adaptSize,
