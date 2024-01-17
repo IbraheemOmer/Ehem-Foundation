@@ -8,6 +8,7 @@ import 'package:ehem_foundation_project/widgets/app_bar/appbar_trailing_image.da
 import 'package:ehem_foundation_project/widgets/app_bar/custom_app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:ehem_foundation_project/classes/post.dart';
+import 'package:ehem_foundation_project/presentation/add_a_post_one_screen/add_a_post_one_screen.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -58,15 +59,26 @@ class _HomePageState extends State<HomePage> {
                 text: postList[index].text,
                 timestamp: postList[index].timestamp,
                 likes: postList[index].likes,
-                imageUrl: postList[index].imageUrl, 
+                imageUrl: postList[index].imageUrl,
                 name: postList[index].name,
-                // user: postList[index].user,
+                // comments: postList[index].comments,
                 onTapUserProfile: () {
                   onTapUserProfile(context);
                 },
               );
             },
           ),
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => AddAPostOneScreen()),
+            );
+          },
+          backgroundColor: Colors.pink, // Change color as needed
+          child:
+              Icon(Icons.add, color: Colors.white), // Adjust the icon and color
         ),
       ),
     );

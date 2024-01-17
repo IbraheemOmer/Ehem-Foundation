@@ -15,7 +15,6 @@ class Comment {
     required this.likes,
   });
 
-  // Convert the Comment object to a Map
   Map<String, dynamic> toMap() {
     return {
       'text': text,
@@ -26,7 +25,6 @@ class Comment {
     };
   }
 
-  // Create a Comment object from a Map
   factory Comment.fromMap(Map<String, dynamic> map) {
     return Comment(
       text: map['text'],

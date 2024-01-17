@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:ehem_foundation_project/classes/comment.dart';
 
 class Post {
   late String text;

@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:ehem_foundation_project/classes/comment.dart';
 import 'package:ehem_foundation_project/classes/post.dart';
 import 'package:ehem_foundation_project/core/app_export.dart';
 import 'package:flutter/material.dart';
@@ -10,6 +11,7 @@ class UserprofileItemWidget extends StatelessWidget {
   final int likes;
   final String imageUrl;
   final String name;
+  // final List<Comment> comments;
 
   UserprofileItemWidget({
     required this.text,
@@ -17,6 +19,7 @@ class UserprofileItemWidget extends StatelessWidget {
     required this.likes,
     required this.imageUrl,
     required this.name,
+    // required this.comments,
     Key? key,
     this.onTapUserProfile,
   }) : super(key: key);
@@ -54,7 +57,7 @@ class UserprofileItemWidget extends StatelessWidget {
                 likes: likes,
                 imageUrl: imageUrl,
                 name: name,
-                // comments: [], // You may need to provide comments here
+                // comments: [],
               ),
             ),
           ),
