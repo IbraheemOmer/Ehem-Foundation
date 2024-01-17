@@ -87,20 +87,69 @@ class _HomePageState extends State<HomePage> {
   /// Section Widget
   PreferredSizeWidget _buildAppBar(BuildContext context) {
     return CustomAppBar(
-        title:
-            AppbarSubtitle(text: "Home", margin: EdgeInsets.only(left: 17.h)),
-        actions: [
-          AppbarSubtitleOne(
-              text: "Recent",
-              margin: EdgeInsets.only(left: 25.h, top: 18.v, right: 18.h)),
-          AppbarTrailingImage(
-              imagePath: ImageConstant.imgArrowDownOnprimary,
-              margin: EdgeInsets.fromLTRB(15.h, 18.v, 43.h, 2.v))
-        ]);
+      title: AppbarSubtitle(text: "Home", margin: EdgeInsets.only(left: 17.h)),
+      actions: [
+        AppbarSubtitleOne(
+          text: selectedSortOption,
+          margin: EdgeInsets.only(left: 25.h, top: 18.v, right: 18.h),
+        ),
+        AppbarTrailingImage(
+          imagePath: ImageConstant.imgArrowDownOnprimary,
+          margin: EdgeInsets.fromLTRB(15.h, 18.v, 43.h, 2.v),
+          onTap: () {
+            _showSortOptions(context);
+          },
+        ),
+      ],
+    );
   }
 
   /// Navigates to the postPageOneScreen when the action is triggered.
   onTapUserProfile(BuildContext context) {
     Navigator.pushNamed(context, AppRoutes.postPageOneScreen);
+  }
+
+  String selectedSortOption = 'Recent'; // Default sorting option
+
+  void _showSortOptions(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext bc) {
+        return Container(
+          child: Wrap(
+            children: <Widget>[
+              ListTile(
+                title: Text('Latest'),
+                onTap: () {
+                  _sortPosts('Latest');
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                title: Text('Earliest'),
+                onTap: () {
+                  _sortPosts('Earliest');
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _sortPosts(String option) {
+    setState(() {
+      selectedSortOption = option;
+      switch (option) {
+        case 'Latest':
+          postList.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+          break;
+        case 'Earliest':
+          postList.sort((a, b) => a.timestamp.compareTo(b.timestamp));
+          break;
+      }
+    });
   }
 }
