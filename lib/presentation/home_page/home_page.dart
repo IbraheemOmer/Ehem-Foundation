@@ -58,6 +58,9 @@ class _HomePageState extends State<HomePage> {
                 text: postList[index].text,
                 timestamp: postList[index].timestamp,
                 likes: postList[index].likes,
+                imageUrl: postList[index].imageUrl, 
+                name: postList[index].name,
+                // user: postList[index].user,
                 onTapUserProfile: () {
                   onTapUserProfile(context);
                 },

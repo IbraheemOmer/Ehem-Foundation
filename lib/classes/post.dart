@@ -3,30 +3,40 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class Post {
   late String text;
   late Timestamp timestamp;
-  late int likes; 
-  
+  late String name;
+  late String imageUrl;
+  late int likes;
+  // late List<Comment> comments;
 
   Post({
     required this.text,
     required this.timestamp,
-    required this.likes, 
+    required this.name,
+    required this.imageUrl,
+    required this.likes,
+    // required this.comments,
   });
 
-  // Convert the Post object to a Map
   Map<String, dynamic> toMap() {
     return {
       'text': text,
       'timestamp': timestamp,
-      'likes' : likes, 
+      'name': name,
+      'imageUrl': imageUrl,
+      'likes': likes,
+      // 'comments': comments.map((comment) => comment.toMap()).toList(),
     };
   }
 
-  // Create a Post object from a Map
   factory Post.fromMap(Map<String, dynamic> map) {
     return Post(
       text: map['text'],
       timestamp: map['timestamp'],
-      likes: map['likes'], 
+      name: map['name'],
+      imageUrl: map['imageUrl'],
+      likes: map['likes'],
+      // comments: List<Comment>.from(
+      //     (map['comments'] as List).map((comment) => Comment.fromMap(comment))),
     );
   }
 }
