@@ -1,3 +1,12 @@
+import 'dart:io';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+
+
 import '../profile_page/widgets/filecomponent_item_widget.dart';
 import 'package:ehem_foundation_project/core/app_export.dart';
 import 'package:ehem_foundation_project/widgets/app_bar/appbar_subtitle.dart';
@@ -7,12 +16,17 @@ import 'package:ehem_foundation_project/widgets/custom_text_form_field.dart';
 import 'package:flutter/material.dart';
 
 // ignore_for_file: must_be_immutable
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
   ProfilePage({Key? key})
       : super(
           key: key,
         );
 
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
   TextEditingController nameController = TextEditingController();
 
   TextEditingController emailController = TextEditingController();
@@ -25,7 +39,159 @@ class ProfilePage extends StatelessWidget {
 
   TextEditingController iconamooneditthinController = TextEditingController();
 
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  final CollectionReference userCollection = FirebaseFirestore.instance.collection('users');
+
+  final ImagePicker _imagePicker = ImagePicker();
+
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
+  File? _image;
+
+  String _errorText = '';
+
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchUserData();
+  }
+
+  Future<void> _fetchUserData() async {
+    try {
+      User? user = _auth.currentUser;
+      if (user != null) {
+        DocumentSnapshot userSnapshot =
+        await userCollection.doc(user.uid).get();
+
+        if (userSnapshot.exists) {
+          Map<String, dynamic> userData = userSnapshot.data() as Map<String, dynamic>;
+
+          setState(() {
+            nameController.text = userData['name'] ?? '';
+            emailController.text = userData['email'] ?? '';
+            passwordController.text = userData['password'] ?? '';
+            dateController.text = userData['date'] ?? '';
+            countryController.text = userData['country'] ?? '';
+            iconamooneditthinController.text = userData['divorcedValue'] ?? '';
+            _image = File(userData['imageUrl'] ?? '');
+            // Set other fields accordingly
+          });
+        }
+      }
+    } catch (e) {
+      print('Error fetching user data: $e');
+    }
+  }
+
+  Future<void> _updateProfile() async {
+    setState(() {
+      _errorText = '';
+    });
+
+    if (passwordController.text.trim().length < 6) {
+      setState(() {
+        _errorText = 'Password must be at least 6 characters long.';
+      });
+      return;
+    }
+
+    try {
+      User? user = _auth.currentUser;
+      if (user != null) {
+        await user.updateDisplayName(nameController.text);
+        await user.updatePassword(passwordController.text);
+
+        await userCollection.doc(user.uid).set({
+          'name': nameController.text,
+          'password': passwordController.text,
+          'date': dateController.text,
+          'country': countryController.text,
+          'divorcedValue': iconamooneditthinController.text,
+          // Set other fields accordingly
+        }, SetOptions(merge: true));
+
+        // Upload profile image to Firebase Storage
+        if (_image != null) {
+          // Upload profile image to Firebase Storage
+          String imageFileName = 'profile_${user.uid}.jpg';
+          Reference ref = FirebaseStorage.instance.ref().child('profile_images/$imageFileName');
+          await ref.putFile(_image!);
+
+          UploadTask uploadTask = ref.putFile(_image!);
+
+          await uploadTask.whenComplete(() async{
+            String imageUrl = await ref.getDownloadURL();
+            await userCollection.doc(user.uid).set({
+              'imageUrl': imageUrl,
+              // Set other fields accordingly
+            }, SetOptions(merge: true));
+          });
+          // Save changes to Firestore with the image URL
+        }
+      }
+    } catch (e) {
+      setState(() {
+        _errorText = 'Error updating profile: $e';
+      });
+      return;
+    }
+  }
+
+  void _showImagePickerBottomSheet() {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: Icon(Icons.camera),
+              title: Text('Take a photo'),
+              onTap: () {
+                Navigator.pop(context);
+                _getImageFromCamera();
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.image),
+              title: Text('Choose from gallery'),
+              onTap: () {
+                Navigator.pop(context);
+                _getImageFromGallery();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _getImageFromCamera() async {
+    final pickedFile = await _imagePicker.pickImage(source: ImageSource.camera);
+
+    if (pickedFile != null) {
+      setState(() {
+        _image = File(pickedFile.path);
+      });
+    }
+  }
+
+  Future<void> _getImageFromGallery() async {
+    final pickedFile =
+    await _imagePicker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      setState(() {
+        _image = File(pickedFile.path);
+      });
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -75,7 +241,7 @@ class ProfilePage extends StatelessWidget {
                               alignment: Alignment.bottomRight,
                               children: [
                                 CustomImageView(
-                                  imagePath: ImageConstant.imgEllipse3,
+                                  imagePath: _image != null ? _image!.path : ImageConstant.imgEllipse3,
                                   height: 176.adaptSize,
                                   width: 176.adaptSize,
                                   radius: BorderRadius.circular(
@@ -84,6 +250,7 @@ class ProfilePage extends StatelessWidget {
                                   alignment: Alignment.center,
                                 ),
                                 CustomImageView(
+                                  onTap: _showImagePickerBottomSheet,
                                   imagePath: ImageConstant.imgSolarCameraMi,
                                   height: 32.adaptSize,
                                   width: 32.adaptSize,
@@ -116,6 +283,9 @@ class ProfilePage extends StatelessWidget {
                   _buildUserProfile6(context),
                   SizedBox(height: 24.v),
                   CustomElevatedButton(
+                    onPressed: () {
+                      _updateProfile();
+                    },
                     height: 48.v,
                     text: "Save Changes",
                   ),
@@ -167,6 +337,7 @@ class ProfilePage extends StatelessWidget {
             top: 10.v,
             bottom: 10.v,
           ),
+          autofocus: false,
         ),
       ],
     );
@@ -202,10 +373,13 @@ class ProfilePage extends StatelessWidget {
             top: 10.v,
             bottom: 10.v,
           ),
+          autofocus: false,
         ),
       ],
     );
   }
+
+
 
   /// Section Widget
   Widget _buildUserProfile2(BuildContext context) {
@@ -239,6 +413,7 @@ class ProfilePage extends StatelessWidget {
             top: 10.v,
             bottom: 10.v,
           ),
+          autofocus: false,
         ),
       ],
     );
@@ -273,6 +448,7 @@ class ProfilePage extends StatelessWidget {
             top: 10.v,
             bottom: 10.v,
           ),
+          autofocus: false,
         ),
       ],
     );
@@ -307,6 +483,7 @@ class ProfilePage extends StatelessWidget {
             top: 10.v,
             bottom: 10.v,
           ),
+          autofocus: false,
         ),
       ],
     );
@@ -342,6 +519,7 @@ class ProfilePage extends StatelessWidget {
             top: 10.v,
             bottom: 10.v,
           ),
+          autofocus: false,
         ),
       ],
     );

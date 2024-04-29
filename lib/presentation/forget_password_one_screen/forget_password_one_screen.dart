@@ -5,6 +5,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+import '../login_one_screen/login_one_screen.dart';
+
 class ForgetPasswordOneScreen extends StatefulWidget {
   ForgetPasswordOneScreen({Key? key}) : super(key: key);
 
@@ -20,7 +22,32 @@ class _ForgetPasswordOneScreenState extends State<ForgetPasswordOneScreen> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   Future<void> _sendResetLink(BuildContext context) async {
-        await _auth.sendPasswordResetEmail(email: emailController.text.trim());
+    try {
+      await _auth.sendPasswordResetEmail(email: emailController.text.trim());
+
+      // Show a SnackBar with a success message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Password reset link has been sent to ${emailController.text.trim()}',
+            style: TextStyle(color: Colors.white),
+          ),
+          backgroundColor: Colors.green, // You can customize the color
+        ),
+      );
+      Navigator.push(context, MaterialPageRoute(builder: (context) => LoginOneScreen()));
+    } catch (e) {
+      // Handle errors and show a SnackBar with an error message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Failed to send reset link. Please check your email and try again.',
+            style: TextStyle(color: Colors.white),
+          ),
+          backgroundColor: Colors.red, // You can customize the color
+        ),
+      );
+    }
   }
 
   @override
@@ -89,6 +116,7 @@ class _ForgetPasswordOneScreenState extends State<ForgetPasswordOneScreen> {
           controller: emailController,
           textInputAction: TextInputAction.done,
           textInputType: TextInputType.emailAddress,
+          autofocus: false,
         ),
       ]),
     );

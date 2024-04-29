@@ -172,7 +172,8 @@ class _LoginOneScreenState extends State<LoginOneScreen> {
       SizedBox(height: 10.v),
       CustomTextFormField(
           controller: emailController,
-          textInputType: TextInputType.emailAddress)
+          textInputType: TextInputType.emailAddress,
+          autofocus: false,)
     ]);
   }
 
@@ -188,6 +189,7 @@ class _LoginOneScreenState extends State<LoginOneScreen> {
           textInputAction: TextInputAction.done,
           textInputType: TextInputType.visiblePassword,
           obscureText: _obscurePassword,
+          autofocus: false,
           suffix: GestureDetector(
             onTap: () {
               setState(() {

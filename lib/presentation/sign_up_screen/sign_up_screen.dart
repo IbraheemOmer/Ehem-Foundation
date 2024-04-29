@@ -175,6 +175,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       CustomTextFormField(
         controller: emailController,
         textInputType: TextInputType.emailAddress,
+        autofocus: false,
         validator: (value) {
           if (value == null || value.isEmpty) {
             return 'Please enter your email';
@@ -194,6 +195,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
         controller: passwordController,
         textInputType: TextInputType.visiblePassword,
         obscureText: true,
+        autofocus: false,
         validator: (value) {
           if (value == null || value.isEmpty) {
             return 'Please enter your password';
@@ -243,7 +245,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Text("Country", style: theme.textTheme.titleLarge),
       SizedBox(height: 11.v),
-      CustomTextFormField(controller: countryController)
+      CustomTextFormField(controller: countryController, autofocus: false,)
     ]);
   }
 
@@ -254,7 +256,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
       SizedBox(height: 13.v),
       CustomTextFormField(
           controller: divorcedvalueController,
-          textInputAction: TextInputAction.done)
+          textInputAction: TextInputAction.done,
+          autofocus: false,
+      )
     ]);
   }
 
