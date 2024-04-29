@@ -7,6 +7,8 @@ class Post {
   late String name;
   late String imageUrl;
   late int likes;
+  bool isHidden;
+
   // late List<Comment> comments;
 
   Post({
@@ -15,6 +17,8 @@ class Post {
     required this.name,
     required this.imageUrl,
     required this.likes,
+    this.isHidden = false
+
     // required this.comments,
   });
 
@@ -25,6 +29,7 @@ class Post {
       'name': name,
       'imageUrl': imageUrl,
       'likes': likes,
+      'isHidden': isHidden,
       // 'comments': comments.map((comment) => comment.toMap()).toList(),
     };
   }
@@ -36,6 +41,7 @@ class Post {
       name: map['name'],
       imageUrl: map['imageUrl'],
       likes: map['likes'],
+      isHidden: map['isHidden'] ?? false,
       // comments: List<Comment>.from(
       //     (map['comments'] as List).map((comment) => Comment.fromMap(comment))),
     );

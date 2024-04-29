@@ -55,17 +55,21 @@ class _HomePageState extends State<HomePage> {
             physics: BouncingScrollPhysics(),
             itemCount: postList.length,
             itemBuilder: (context, index) {
-              return UserprofileItemWidget(
-                text: postList[index].text,
-                timestamp: postList[index].timestamp,
-                likes: postList[index].likes,
-                imageUrl: postList[index].imageUrl,
-                name: postList[index].name,
-                // comments: postList[index].comments,
-                onTapUserProfile: () {
-                  onTapUserProfile(context);
-                },
-              );
+              if (!postList[index].isHidden) {
+                return UserprofileItemWidget(
+                  text: postList[index].text,
+                  timestamp: postList[index].timestamp,
+                  likes: postList[index].likes,
+                  imageUrl: postList[index].imageUrl,
+                  name: postList[index].name,
+                  onTapUserProfile: () {
+                    onTapUserProfile(context);
+                  },
+                );
+              } else {
+                // Return an empty container for hidden posts
+                return Container();
+              }
             },
           ),
         ),
@@ -152,4 +156,14 @@ class _HomePageState extends State<HomePage> {
       }
     });
   }
+
+  void hidePost(Post post) {
+  setState(() {
+    post.isHidden = true;
+  });
+  }
+
+  
+
+
 }

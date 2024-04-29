@@ -3,8 +3,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ehem_foundation_project/classes/comment.dart';
 import 'package:ehem_foundation_project/classes/post.dart';
 import 'package:ehem_foundation_project/core/app_export.dart';
+import 'package:ehem_foundation_project/presentation/options_bottomsheet/options_bottomsheet.dart';
 import 'package:flutter/material.dart';
-
+// last working on hiding pages.  
 class UserprofileItemWidget extends StatelessWidget {
   final String text;
   final Timestamp timestamp;
@@ -115,11 +116,23 @@ class UserprofileItemWidget extends StatelessWidget {
                     ],
                   ),
                 ),
-                CustomImageView(
-                  imagePath: ImageConstant.imgTablerDots,
-                  height: 16.adaptSize,
-                  width: 16.adaptSize,
-                  margin: EdgeInsets.only(bottom: 18.v),
+                GestureDetector(
+                  onTap: () {
+                    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return OptionsBottomsheet();
+      },
+    );
+                    
+                    
+                  },
+                  child: CustomImageView(
+                    imagePath: ImageConstant.imgTablerDots,
+                    height: 16.adaptSize,
+                    width: 16.adaptSize,
+                    margin: EdgeInsets.only(bottom: 18.v),
+                  ),
                 ),
               ],
             ),
