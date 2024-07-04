@@ -49,7 +49,7 @@ To get started with the Ehem Foundation Flutter project, follow these steps:
     ```
 2. **Navigate to the project directory:**
     ```bash
-    cd ehem-foundation
+    cd Ehem-Foundation
     ```
 3. **Install dependencies:**
     ```bash
